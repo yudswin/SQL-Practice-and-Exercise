@@ -106,10 +106,30 @@ HAVING AVG(Products.Price) >= 150
 
 -- 1.15 Select the name and price of the cheapest product.
 
+SELECT name,price
+  FROM Products
+  ORDER BY price ASC
+  LIMIT 1;
 
 
 -- 1.16 Select the name of each manufacturer along with the name and price of its most expensive product.
 
+SELECT max_price_mapping.name AS manu_name, max_price_mapping.price, products_with_manu_name.name as product_name
+FROM 
+    (SELECT Manufacturers.Name, MAX(Price) price
+     FROM Products, Manufacturers
+     WHERE Manufacturer = Manufacturers.Code
+     GROUP BY Manufacturers.Name)
+     AS max_price_mapping
+   LEFT JOIN
+     (SELECT products.*, manufacturers.name manu_name
+      FROM products JOIN manufacturers
+      ON (products.manufacturer = manufacturers.code))
+      AS products_with_manu_name
+ ON
+   (max_price_mapping.name = products_with_manu_name.manu_name
+    AND
+    max_price_mapping.price = products_with_manu_name.price); 
 
 -- 1.17 Add a new product: Loudspeakers, $70, manufacturer 2.
 
