@@ -1,3 +1,23 @@
+-- 1.0 Create Table
+CREATE TABLE Manufacturers (
+	Code INTEGER PRIMARY KEY NOT NULL,
+	Name CHAR(50) NOT NULL 
+);
+
+CREATE TABLE Products (
+	Code INTEGER PRIMARY KEY NOT NULL,
+	Name CHAR(50) NOT NULL ,
+	Price REAL NOT NULL ,
+	Manufacturer INTEGER NOT NULL 
+		CONSTRAINT fk_Manufacturers_Code REFERENCES Manufacturers(Code)
+);
+
+INSERT INTO Manufacturers(Code,Name) VALUES (1,'Sony'),(2,'Creative Labs'),(3,'Hewlett-Packard'),(4,'Iomega'),(5,'Fujitsu'),(6,'Winchester');
+
+INSERT INTO Products(Code,Name,Price,Manufacturer) VALUES(1,'Hard drive',240,5),(2,'Memory',120,6),(3,'ZIP drive',150,4),(4,'Floppy disk',5,6),(5,'Monitor',240,1),
+(6,'DVD drive',180,2),(7,'CD drive',90,2),(8,'Printer',270,3),(9,'Toner cartridge',66,3),(10,'DVD burner',180,2);
+
+
 -- 1.1 Select the names of all the products in the store.	
 SELECT * FROM dbo.Products
 
@@ -105,40 +125,40 @@ GROUP BY Manufacturers.Name
 HAVING AVG(Products.Price) >= 150
 
 -- 1.15 Select the name and price of the cheapest product.
-
-SELECT name,price
-  FROM Products
-  ORDER BY price ASC
-  LIMIT 1;
+SELECT 
+	Products.Name,
+	Products.Price
+FROM
+	dbo.Products
+WHERE Price = (SELECT MIN (Price) FROM dbo.Products)
 
 
 -- 1.16 Select the name of each manufacturer along with the name and price of its most expensive product.
 
-SELECT max_price_mapping.name AS manu_name, max_price_mapping.price, products_with_manu_name.name as product_name
-FROM 
-    (SELECT Manufacturers.Name, MAX(Price) price
-     FROM Products, Manufacturers
-     WHERE Manufacturer = Manufacturers.Code
-     GROUP BY Manufacturers.Name)
-     AS max_price_mapping
-   LEFT JOIN
-     (SELECT products.*, manufacturers.name manu_name
-      FROM products JOIN manufacturers
-      ON (products.manufacturer = manufacturers.code))
-      AS products_with_manu_name
- ON
-   (max_price_mapping.name = products_with_manu_name.manu_name
-    AND
-    max_price_mapping.price = products_with_manu_name.price); 
+SELECT
+	Manufacturers.Name,
+	Products.Name,
+	Products.Price
+FROM dbo.Manufacturers
+LEFT JOIN dbo.Products
+ON Manufacturers.Code = Products.Manufacturer
+AND Products.Price = (SELECT MAX(Price) FROM dbo.Products WHERE Products.Manufacturer = Manufacturers.Code)
 
 -- 1.17 Add a new product: Loudspeakers, $70, manufacturer 2.
-
+INSERT INTO dbo.Products(Code, Name, Price, Manufacturer)
+VALUES (11,'Loudspeaker', 70, 2);
 
 -- 1.18 Update the name of product 8 to "Laser Printer".
-
+UPDATE dbo.Products
+SET Name = 'Laser Printer'
+WHERE Products.Code = 8;
 
 -- 1.19 Apply a 10% discount to all products.
-
+UPDATE dbo.Products
+SET Price = Price - (Price * 10 / 100)
 
 -- 1.20 Apply a 10% discount to all products with a price larger than or equal to $120.
 
+UPDATE dbo.Products
+SET Price = Price - (Price * 10 / 100)
+WHERE Price >= 120
