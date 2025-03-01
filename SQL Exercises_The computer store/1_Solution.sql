@@ -162,3 +162,6 @@ SET Price = Price - (Price * 10 / 100)
 UPDATE dbo.Products
 SET Price = Price - (Price * 10 / 100)
 WHERE Price >= 120
+
+
+AAAAAAAAAAAAA
